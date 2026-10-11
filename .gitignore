@@ -9,3 +9,6 @@ tsconfig.tsbuildinfo
 CLAUDE.md
 NEXT_STEPS.md
 DESIGN_SYSTEM.md
+
+.vercel
+.env*
