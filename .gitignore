@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+.omc
+.playwright-mcp
+tsconfig.tsbuildinfo
+.vercel
+# 내부 작업 문서 (공개 레포에 올리지 않음)
+CLAUDE.md
+NEXT_STEPS.md
+DESIGN_SYSTEM.md
