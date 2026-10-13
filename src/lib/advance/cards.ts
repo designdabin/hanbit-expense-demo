@@ -1,13 +1,13 @@
 import { CARD_DEPARTMENTS, type CardDepartment, type CorporateCard } from "./types";
 
-const STORAGE_KEY = "hanbit-demo-advance-cards";
+const STORAGE_KEY = "hanbit-demo-advance-cards-v2";
 
 /** 데모용 가상 카드 4장. 실제 인물·카드번호와 무관하다. */
 export const SEED_CARDS: CorporateCard[] = [
-  { id: "kb-4471-lee-seojun", holderName: "이서준", cardCompany: "국민", department: "(건축/인테리어)시공", last4: "4471", memo: "차장" },
-  { id: "ibk-8206-jung-hayun", holderName: "정하윤", cardCompany: "기업", department: "(건축/인테리어)디자인&설계", last4: "8206", memo: "대리" },
-  { id: "kb-3159-oh-minjae", holderName: "오민재", cardCompany: "국민", department: "경영지원", last4: "3159", memo: "과장" },
-  { id: "ibk-6023-han-jiwoo", holderName: "한지우", cardCompany: "기업", department: "공무", last4: "6023", memo: "주임" },
+  { id: "kb-4471-kim-cheolsu", holderName: "김철수", cardCompany: "국민", department: "(건축/인테리어)시공", last4: "4471", memo: "차장" },
+  { id: "ibk-8206-lee-younghee", holderName: "이영희", cardCompany: "기업", department: "(건축/인테리어)디자인&설계", last4: "8206", memo: "대리" },
+  { id: "kb-3159-hong-gildong", holderName: "홍길동", cardCompany: "국민", department: "경영지원", last4: "3159", memo: "과장" },
+  { id: "ibk-6023-park-minsu", holderName: "박민수", cardCompany: "기업", department: "공무", last4: "6023", memo: "주임" },
 ];
 
 // localStorage가 막힌 환경(시크릿 창 등)에서는 메모리로만 유지한다.

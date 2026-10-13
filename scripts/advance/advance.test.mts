@@ -15,7 +15,7 @@ import type { ApprovalRow } from "../../src/lib/advance/types.ts";
 
 const SAMPLES = path.join(import.meta.dirname, "..", "..", "public", "samples");
 const HEADERS = ["승인일", "가맹점명", "승인금액", "카드번호", "승인번호", "사업자등록번호", "업종명", "상태", "취소금액", "취소일자"];
-const [LEE, JUNG, OH, HAN] = SEED_CARDS;
+const [KIM, LEE, HONG, PARK] = SEED_CARDS;
 
 type Cell = string | number | null;
 const book = (rows: Cell[][]) => {
@@ -70,13 +70,13 @@ test("헤더 없는 시트는 7열 구조로 읽고 경고한다", async () => {
 test("승인내역서의 카드번호로 카드를 자동 식별한다", async () => {
   const m = await matchCard("statement.xlsx", book([HEADERS, ["2026-03-04", "테스트주유소", 55000, "9411-****-****-4471", "A1001", "111-22-33333", "주유소", "정상", "", ""]]), SEED_CARDS);
   assert.equal(m.source, "statement-card-number");
-  assert.equal(m.card.id, LEE.id);
+  assert.equal(m.card.id, KIM.id);
 });
 
 test("카드번호가 없으면 파일명으로 식별한다", async () => {
-  const m = await matchCard("이서준_국민_4471.xlsx", book([HEADERS, ["2026-03-04", "테스트문구점", 12000, "", "A1002", "222-33-44444", "사무용품", "정상", "", ""]]), SEED_CARDS);
+  const m = await matchCard("김철수_국민_4471.xlsx", book([HEADERS, ["2026-03-04", "테스트문구점", 12000, "", "A1002", "222-33-44444", "사무용품", "정상", "", ""]]), SEED_CARDS);
   assert.equal(m.source, "file-name");
-  assert.equal(m.card.id, LEE.id);
+  assert.equal(m.card.id, KIM.id);
 });
 
 test("쓸 수 없는 파일은 invalid-statement 로 거절한다", async () => {
@@ -85,17 +85,17 @@ test("쓸 수 없는 파일은 invalid-statement 로 거절한다", async () => 
 
 test("선택 카드와 승인내역서 카드번호가 다르면 미리보기를 막는다", async () => {
   const data = book([HEADERS, ["2026-03-04", "테스트주유소", 55000, "9411-****-****-4471", "A1001", "111-22-33333", "주유소", "정상", "", ""]]);
-  await assert.rejects(buildPreview(JUNG, data), /카드번호가 다릅니다/);
+  await assert.rejects(buildPreview(LEE, data), /카드번호가 다릅니다/);
 });
 
 // ---- 데모 샘플 ----
 test("샘플 4종이 시드 카드로 자동 매칭되고 기대 건수를 낸다", async () => {
   const expected: Array<[string, string, number, number]> = [
     // 파일, 카드, 승인 행수, 취소 행수
-    ["법인카드_승인내역_국민카드_2026년03월_이서준.xlsx", LEE.id, 18, 0],
-    ["법인카드_승인내역_기업카드_2026년03월_정하윤.xlsx", JUNG.id, 10, 0],
-    ["법인카드_승인내역_국민카드_2026년03월_오민재.xlsx", OH.id, 6, 2],
-    ["법인카드_승인내역_기업카드_2026년04월_한지우.xlsx", HAN.id, 36, 0],
+    ["법인카드_승인내역_국민카드_2026년03월_김철수.xlsx", KIM.id, 18, 0],
+    ["법인카드_승인내역_기업카드_2026년03월_이영희.xlsx", LEE.id, 10, 0],
+    ["법인카드_승인내역_국민카드_2026년03월_홍길동.xlsx", HONG.id, 6, 2],
+    ["법인카드_승인내역_기업카드_2026년04월_박민수.xlsx", PARK.id, 36, 0],
   ];
   for (const [file, cardId, rows, cancelled] of expected) {
     const m = await matchCard(file, sample(file), SEED_CARDS);
@@ -107,7 +107,7 @@ test("샘플 4종이 시드 카드로 자동 매칭되고 기대 건수를 낸�
 });
 
 test("취소 샘플: 승인번호/상세조건 취소가 각각 원거래를 제외한다", async () => {
-  const parsed = await parseApprovalWorkbook(sample("법인카드_승인내역_국민카드_2026년03월_오민재.xlsx"));
+  const parsed = await parseApprovalWorkbook(sample("법인카드_승인내역_국민카드_2026년03월_홍길동.xlsx"));
   assert.equal(parsed.cancelledRows.length, 2);
   assert.ok(!parsed.rows.some((r) => r.approvalNumber === "C7002"), "승인번호 매칭 취소");
   assert.ok(!parsed.rows.some((r) => r.merchant === "온누리 문구"), "상세조건 매칭 취소");
@@ -115,7 +115,7 @@ test("취소 샘플: 승인번호/상세조건 취소가 각각 원거래를 제
 });
 
 test("헤더 없는 샘플은 경고를 낸다", async () => {
-  const parsed = await parseApprovalWorkbook(sample("법인카드_승인내역_기업카드_2026년03월_정하윤.xlsx"));
+  const parsed = await parseApprovalWorkbook(sample("법인카드_승인내역_기업카드_2026년03월_이영희.xlsx"));
   assert.ok(parsed.warnings.some((w) => w.startsWith("제목 줄이 없는")));
 });
 
@@ -136,8 +136,8 @@ test("생성 결과가 다시 열리고 병합·날짜·SUM 수식·갑지 값�
     row("2", "2026-03-04", "온누리 문구", 12000, "supplies", "물품구입비", "K"),
     row("3", "2026-03-05", "행복 커피", 8000, "welfare", "복리후생비", "H"),
   ];
-  const out = await createAdvanceWorkbook({ card: LEE, rows, templateBuffer: template() });
-  assert.equal(getDownloadFilename(LEE, rows), "전도금 신청서_03월분_이서준_법인카드.xlsx");
+  const out = await createAdvanceWorkbook({ card: KIM, rows, templateBuffer: template() });
+  assert.equal(getDownloadFilename(KIM, rows), "전도금 신청서_03월분_김철수_법인카드.xlsx");
 
   const wb = await load(out);
   const eulji = wb.getWorksheet("을지")!;
@@ -153,8 +153,8 @@ test("생성 결과가 다시 열리고 병합·날짜·SUM 수식·갑지 값�
   assert.ok(sum.formula === "SUM(E8:E38)" || sum.sharedFormula, "합계 SUM 수식");
   assert.equal((eulji.getCell("H39").value as { formula: string }).formula, "SUM(H8:H38)");
   assert.equal(gapji.getCell("G9").value, "(국민카드) ****-****-****-4471");
-  assert.equal(gapji.getCell("G5").value, LEE.department);
-  assert.equal(gapji.getCell("O5").value, LEE.holderName);
+  assert.equal(gapji.getCell("G5").value, KIM.department);
+  assert.equal(gapji.getCell("O5").value, KIM.holderName);
   assert.equal((gapji.getCell("W5").value as Date).toISOString(), "2026-04-05T00:00:00.000Z");
   assert.equal((gapji.getCell("A30").value as Date).toISOString(), "2026-04-10T00:00:00.000Z");
   assert.equal(gapji.getImages().length, 1);
@@ -165,9 +165,9 @@ test("생성 결과가 다시 열리고 병합·날짜·SUM 수식·갑지 값�
 });
 
 test("36건 샘플로 생성하면 행이 추가되고 합계 SUM 범위가 따라간다", async () => {
-  const parsed = await parseApprovalWorkbook(sample("법인카드_승인내역_기업카드_2026년04월_한지우.xlsx"));
+  const parsed = await parseApprovalWorkbook(sample("법인카드_승인내역_기업카드_2026년04월_박민수.xlsx"));
   assert.equal(parsed.rows.length, 36);
-  const out = await createAdvanceWorkbook({ card: HAN, rows: parsed.rows, templateBuffer: template() });
+  const out = await createAdvanceWorkbook({ card: PARK, rows: parsed.rows, templateBuffer: template() });
   const eulji = (await load(out)).getWorksheet("을지")!;
   const totalRow = 8 + 36; // 데이터 8..43, 합계 44
   assert.equal(String(eulji.getCell("A" + totalRow).value).replace(/\s/g, ""), "합계");

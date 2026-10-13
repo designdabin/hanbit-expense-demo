@@ -187,7 +187,6 @@ button:disabled { cursor: not-allowed; opacity: 1; }
   color: var(--primary-foreground);
 }
 .step-item strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--text-sm); font-weight: var(--weight-semibold); line-height: 20px; }
-.step-item small { display: block; margin-top: 4px; color: var(--muted-foreground); font-size: var(--text-2xs); line-height: 1.35; }
 .step-panel { display: grid; gap: 24px; }
 .setup-grid { grid-template-columns: 1fr; align-items: start; }
 .review-stack { align-content: start; padding-bottom: 96px; }
@@ -305,10 +304,16 @@ button:disabled { cursor: not-allowed; opacity: 1; }
   padding: 18px 20px;
   cursor: default;
 }
-.file-dropzone:hover, .file-dropzone-active {
+button.file-dropzone { width: 100%; cursor: pointer; font: inherit; }
+button.file-dropzone:disabled { cursor: progress; }
+.file-dropzone:hover {
   border-color: var(--info-border-strong);
   background: var(--info-bg);
   box-shadow: none;
+}
+.file-dropzone:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
 .file-dropzone > .file-drop-icon,
 .file-dropzone > strong,
@@ -594,13 +599,12 @@ button:disabled { cursor: not-allowed; opacity: 1; }
 .alert-info .ui-alert-description { color: var(--primary); }
 .toast-viewport {
   position: fixed;
-  top: auto;
-  right: auto;
-  bottom: 24px;
-  left: 50%;
+  top: 72px; /* 고정 헤더(약 57px) 아래 */
+  right: 20px;
+  bottom: auto;
+  left: auto;
   z-index: 2147483647;
-  width: min(560px, calc(100vw - 32px));
-  transform: translateX(-50%);
+  width: min(420px, calc(100vw - 32px));
   pointer-events: none;
 }
 .toast-card {
@@ -715,21 +719,43 @@ button:disabled { cursor: not-allowed; opacity: 1; }
 
 .metric-grid { display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; gap: 12px; }
 .metric-grid > .ui-card { flex: 1 1 180px; min-width: 0; }
-.metric-card { padding: 16px 20px; }
-.metric-card span { display: block; color: var(--muted-subtle); font-size: var(--text-2xs); line-height: 16px; }
-.metric-card strong { display: block; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--foreground); font-size: var(--text-xl); font-weight: var(--weight-bold); line-height: 28px; }
+.metric-grid > .metric-card-primary { flex-basis: 100%; }
+.metric-card { display: flex; align-items: center; gap: 12px; height: 100%; padding: 14px 18px; }
+.metric-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--info-bg);
+  color: var(--primary);
+}
+.metric-icon svg { width: 19px; height: 19px; }
+.metric-body { min-width: 0; flex: 1 1 auto; }
+.metric-label { display: block; color: var(--muted-subtle); font-size: var(--text-2xs); line-height: 16px; }
+.metric-card strong { display: block; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--foreground); font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: 24px; }
+.metric-card-primary .metric-card { padding: 20px 24px; gap: 16px; }
+.metric-card-primary .metric-icon { width: 48px; height: 48px; border-radius: 14px; }
+.metric-card-primary .metric-icon svg { width: 26px; height: 26px; }
+.metric-card-primary .metric-label { font-size: var(--text-xs); }
+.metric-card-primary strong { margin-top: 2px; font-size: var(--text-3xl); line-height: 36px; }
+.metric-card-danger .metric-icon { background: var(--danger-bg-soft); color: var(--destructive); }
 .metric-text-button {
   display: inline-flex;
   align-items: center;
-  margin-top: 6px;
+  margin-top: 2px;
   border: 0;
   border-radius: 6px;
   background: transparent;
   color: var(--info-text);
   padding: 0;
-  font-size: var(--text-xl);
+  cursor: pointer;
+  font-size: var(--text-lg);
   font-weight: var(--weight-bold);
-  line-height: 28px;
+  line-height: 24px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .metric-text-button:hover { color: var(--primary-hover); }
 .preview-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
@@ -795,11 +821,11 @@ button:disabled { cursor: not-allowed; opacity: 1; }
   .main-grid, .workflow-shell { padding: 12px; }
   .header-inner { padding: 10px 16px; }
   .metric-grid > .ui-card { flex-basis: 100%; }
+  .metric-card-primary strong { font-size: var(--text-2xl); line-height: 30px; }
   .two-col { grid-template-columns: 1fr; }
   .stepper { max-width: 100%; }
   .step-item { padding: 0 6px; }
   .step-item strong { font-size: var(--text-xs); }
-  .step-item small { display: none; }
   .header-inner h1 { font-size: 17px; }
   .modal-backdrop { padding: 12px; }
   .modal-panel { max-height: calc(100vh - 24px); }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Modal, SampleDropZone, Steps, useToast, Workflow, type Sample, type StepDef } from "@/components/DemoShell";
+import { MetricCard, Modal, SampleDropZone, Steps, useToast, Workflow, type Sample, type StepDef } from "@/components/DemoShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,12 +15,12 @@ import type { ApprovalRow, CorporateCard, PreviewResponse } from "@/lib/advance/
 import { CardManager } from "./CardManager";
 
 const SAMPLES: Sample[] = [
-  { file: "법인카드_승인내역_국민카드_2026년03월_오민재.xlsx", label: "카드 사용내역 샘플 (3월 · 오민재)", hint: "국민카드 · 취소 2건과 원래 결제가 자동으로 빠짐" },
+  { file: "법인카드_승인내역_국민카드_2026년03월_홍길동.xlsx", label: "카드 사용내역 샘플 (3월 · 홍길동)", hint: "국민카드 · 취소 2건과 원래 결제가 자동으로 빠짐" },
 ];
 
 const STEPS: StepDef[] = [
-  { title: "카드 사용내역 올리기", sub: "파일을 올리면 사용한 카드를 자동으로 찾아요" },
-  { title: "내역 확인 및 다운로드", sub: "취소된 결제를 빼고 정산서를 저장해요" },
+  { title: "카드 사용내역 올리기" },
+  { title: "내역 확인 및 다운로드" },
 ];
 
 const formatWon = (n: number) => new Intl.NumberFormat("ko-KR").format(n) + "원";
@@ -267,17 +267,14 @@ export default function AdvanceDemo() {
       ) : (
         <section className="step-panel review-stack">
           <div className="metric-grid">
-            <Card><CardContent className="metric-card"><span>사용 월</span><strong>{formatMonth(preview?.month)}</strong></CardContent></Card>
-            <Card><CardContent className="metric-card"><span>사용한 카드</span><strong>{selectedCard ? selectedCard.holderName : "미확인"}</strong></CardContent></Card>
-            <Card><CardContent className="metric-card"><span>포함 건수</span><strong>{rows.length}건</strong></CardContent></Card>
-            <Card><CardContent className="metric-card"><span>총 금액</span><strong>{formatWon(total)}</strong></CardContent></Card>
+            <MetricCard tone="primary" icon="won" label="정산 총 금액" value={formatWon(total)} />
+            <MetricCard icon="calendar" label="사용 월" value={formatMonth(preview?.month)} />
+            <MetricCard icon="card" label="사용한 카드" value={selectedCard ? selectedCard.holderName : "미확인"} />
+            <MetricCard icon="list" label="포함 건수" value={`${rows.length}건`} />
             {cancelledRows.length > 0 ? (
-              <Card>
-                <CardContent className="metric-card metric-card-action">
-                  <span>결제 취소 내역</span>
-                  <button type="button" className="metric-text-button" onClick={() => setCancelledOpen(true)}>{cancelledRows.length}건</button>
-                </CardContent>
-              </Card>
+              <MetricCard icon="cancel" label="결제 취소 내역">
+                <button type="button" className="metric-text-button" onClick={() => setCancelledOpen(true)} aria-label={`결제 취소 내역 ${cancelledRows.length}건 보기`}>{cancelledRows.length}건</button>
+              </MetricCard>
             ) : null}
           </div>
 

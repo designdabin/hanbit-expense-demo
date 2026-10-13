@@ -2,14 +2,15 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 export type Sample = { file: string; label: string; hint: string };
 
-export type StepDef = { title: string; sub?: string };
+export type StepDef = { title: string };
 const DEFAULT_STEPS: StepDef[] = [
-  { title: "샘플 파일 업로드", sub: "샘플을 올리면 내용을 자동으로 읽어 들입니다" },
-  { title: "결과 확인 및 다운로드", sub: "결과를 검토하고 파일로 저장합니다" },
+  { title: "샘플 파일 업로드" },
+  { title: "결과 확인 및 다운로드" },
 ];
 
 /** A의 .stepper. current 는 0부터. steps 를 넘기면 단계 수·문구를 바꿀 수 있다. */
@@ -19,10 +20,7 @@ export function Steps({ current, steps = DEFAULT_STEPS }: { current: number; ste
       {steps.map((s, i) => (
         <div key={s.title} className={i === current ? "step-item step-item-active" : "step-item"} aria-current={i === current ? "step" : undefined} aria-disabled={i > current}>
           <span className="step-index">{i + 1}</span>
-          <span>
-            <strong>{s.title}</strong>
-            {s.sub ? <small>{s.sub}</small> : null}
-          </span>
+          <strong>{s.title}</strong>
         </div>
       ))}
     </nav>
@@ -39,9 +37,9 @@ const FileIcon = ({ size = 23 }: { size?: number }) => (
 type Shown = { name: string; hint: string };
 
 /**
- * 진짜 드롭존(A의 .file-dropzone). 아래 "샘플 파일" 목록에서 내려받은 실제 파일을,
- * 클릭(네이티브 파일 선택창)이나 드래그로 이 박스에 올리면 onFile(file) 이 호출된다.
- * 업로드된 뒤에는 선택 파일 행(.file-selected-row)을 보여 주고 ×로 되돌린다(onClear 선택).
+ * 드롭존(A의 .file-dropzone). 업로드는 연출이고 처리는 진짜다: 박스를 클릭하면 800ms 뒤
+ * public/samples 의 준비된 샘플(samples[0])을 "업로드"한 것으로 보고, 그 파일을 File 로 만들어 onFile(file) 에 넘긴다.
+ * 파일 선택창·드래그앤드롭은 없다. 업로드된 뒤에는 선택 파일 행(.file-selected-row)을 보여 주고 ×로 되돌린다(onClear 선택).
  */
 export function SampleDropZone({ samples, onFile, onClear, accept = "xlsx / xls 형식 지원" }: {
   samples: Sample[];
@@ -50,16 +48,32 @@ export function SampleDropZone({ samples, onFile, onClear, accept = "xlsx / xls 
   accept?: string;
 }) {
   const [picked, setPicked] = useState<Shown | null>(null);
-  const [drag, setDrag] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
 
-  const acceptFile = (file: File) => {
-    setPicked({ name: file.name, hint: "선택한 파일" });
-    onFile(file);
+  const pickSample = async () => {
+    const sample = samples[0];
+    if (!sample || loading) return;
+    setLoading(true);
+    setFailed(false);
+    try {
+      const [res] = await Promise.all([fetch("/samples/" + encodeURIComponent(sample.file)), new Promise((r) => setTimeout(r, 800))]);
+      if (!res.ok) throw new Error("sample " + res.status);
+      const file = new File([await res.blob()], sample.file);
+      if (!alive.current) return;
+      setPicked({ name: sample.file, hint: sample.hint });
+      onFile(file);
+    } catch {
+      if (alive.current) setFailed(true);
+    } finally {
+      if (alive.current) setLoading(false);
+    }
   };
   const clear = () => { setPicked(null); onClear?.(); };
 
-  const cls = cn("file-dropzone", drag && "file-dropzone-active", picked && "file-dropzone-has-file");
+  const cls = cn("file-dropzone", picked && "file-dropzone-has-file");
 
   return (
     <div className="field-stack">
@@ -75,20 +89,7 @@ export function SampleDropZone({ samples, onFile, onClear, accept = "xlsx / xls 
           </div>
         </div>
       ) : (
-        <button
-          type="button"
-          className={cls}
-          onClick={() => fileInputRef.current?.click()}
-          onDragEnter={(e) => { e.preventDefault(); setDrag(true); }}
-          onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
-          onDragLeave={() => setDrag(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDrag(false);
-            const dropped = e.dataTransfer.files?.[0];
-            if (dropped) acceptFile(dropped);
-          }}
-        >
+        <button type="button" className={cls} onClick={pickSample} disabled={loading} aria-busy={loading}>
           <div className="file-empty-state">
             <span className="file-upload-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
@@ -96,22 +97,13 @@ export function SampleDropZone({ samples, onFile, onClear, accept = "xlsx / xls 
                 <path d="m9 13 3-3 3 3M12 10v9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="file-empty-copy">아래 샘플 파일을 내려받아 <b>드래그하거나 클릭</b>하여 업로드해 주세요</span>
+            <span className="file-empty-copy">
+              {loading ? "업로드하는 중…" : failed ? "샘플을 불러오지 못했어요. 다시 클릭해 주세요" : <>이 영역을 <b>클릭</b>하면 샘플 파일이 자동으로 업로드돼요</>}
+            </span>
             <span className="file-format-pill"><FileIcon size={13} />{accept}</span>
           </div>
         </button>
       )}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".xlsx,.xls"
-        className="file-drop-input"
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) acceptFile(f);
-          e.target.value = "";
-        }}
-      />
       <div className="sample-download-row">
         <span className="small-muted">샘플 내려받기:</span>
         {samples.map((s) => (
@@ -168,6 +160,37 @@ export function Modal({ title, description, onClose, className, children }: { ti
       </section>
     </div>,
     document.body,
+  );
+}
+
+const S = { stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" } as const;
+const METRIC_ICONS = {
+  calendar: <><rect x="4" y="5" width="16" height="15" rx="2" {...S} /><path d="M4 10h16M9 3v4M15 3v4" {...S} /></>,
+  card: <><rect x="3" y="6" width="18" height="13" rx="2" {...S} /><path d="M3 10h18M7 15h4" {...S} /></>,
+  list: <path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" {...S} />,
+  won: <path d="M4 7l2.5 10L10 9l2 8 2-8 3.5 8L20 7M3 11h18M3 14h18" {...S} />,
+  user: <><circle cx="12" cy="8" r="3.5" {...S} /><path d="M5 20a7 7 0 0 1 14 0" {...S} /></>,
+  alert: <path d="M12 4 3 20h18L12 4Zm0 6v4m0 3h.01" {...S} />,
+  cancel: <><circle cx="12" cy="12" r="8.5" {...S} /><path d="m9 9 6 6M15 9l-6 6" {...S} /></>,
+  meal: <path d="M7 3v8a2 2 0 0 0 2 2v8M7 3v5M11 3v5M9 3v5M17 21V3c-2.5 1.5-3 5-3 8h3" {...S} />,
+  cup: <path d="M6 5h12l-1.5 15h-9L6 5Zm1 5h10" {...S} />,
+  parking: <><rect x="4" y="4" width="16" height="16" rx="3" {...S} /><path d="M10 16V8h3a2.5 2.5 0 0 1 0 5h-3" {...S} /></>,
+} as const;
+export type MetricIcon = keyof typeof METRIC_ICONS;
+
+/** 요약 지표 카드. tone="primary" 는 한 줄을 다 쓰는 핵심 지표, "danger" 는 빨강 강조. children 이 있으면 값 자리에 대신 렌더링. */
+export function MetricCard({ icon, label, value, tone, children }: { icon: MetricIcon; label: string; value?: string; tone?: "primary" | "danger" | "primary-danger"; children?: React.ReactNode }) {
+  const cls = cn(tone?.includes("primary") && "metric-card-primary", tone?.includes("danger") && "metric-card-danger");
+  return (
+    <Card className={cls || undefined}>
+      <CardContent className="metric-card">
+        <span className="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none">{METRIC_ICONS[icon]}</svg></span>
+        <div className="metric-body">
+          <span className="metric-label">{label}</span>
+          {children ?? <strong title={value}>{value}</strong>}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

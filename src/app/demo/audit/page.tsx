@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
-import { Modal, SampleDropZone, Steps, useToast, Workflow, type Sample } from "@/components/DemoShell";
+import { MetricCard, Modal, SampleDropZone, Steps, useToast, Workflow, type Sample } from "@/components/DemoShell";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,8 +24,8 @@ import { buildAuditReportBytes, buildAuditReportFileName } from "@/lib/audit/aud
 import { PARKING_REFERENCE_LABEL, STATUS_HINT, STATUS_LABEL } from "@/lib/audit/statusLabels";
 
 const STEPS = [
-  { title: "정산서 올리기", sub: "한 사람분 정산서를 올리면 사용 내역을 읽어 들여요" },
-  { title: "점검 결과 확인 및 다운로드", sub: "규칙에 어긋난 내역을 확인하고 리포트를 저장해요" },
+  { title: "정산서 올리기" },
+  { title: "점검 결과 확인 및 다운로드" },
 ];
 
 const SAMPLES: Sample[] = [
@@ -234,13 +234,13 @@ function ResultCard({ fileName, result }: { fileName: string; result: AuditResul
 
       <CardContent className="result-sections">
         <div className="metric-grid">
-          <Metric label="사용자" value={result.ownerName || "(읽지 못함)"} />
-          <Metric label="사용 기간" value={periodLabel(result)} />
-          <Metric label="점검 건수" value={`${result.totalChecked}건`} />
-          <Metric label="식비 한도 초과" value={`${won(result.mealExcess)}원`} />
-          <Metric label="음료 한도 초과" value={`${won(result.drinkExcess)}원`} />
-          <Metric label="쓰면 안 되는 주차비" value={`${won(result.parkingBanned)}원`} />
-          <Metric label="본인 부담 총액" value={`${won(result.totalDeduction)}원`} danger />
+          <MetricCard tone="primary-danger" icon="alert" label="본인 부담 총액" value={`${won(result.totalDeduction)}원`} />
+          <MetricCard icon="user" label="사용자" value={result.ownerName || "(읽지 못함)"} />
+          <MetricCard icon="calendar" label="사용 기간" value={periodLabel(result)} />
+          <MetricCard icon="list" label="점검 건수" value={`${result.totalChecked}건`} />
+          <MetricCard icon="meal" label="식비 한도 초과" value={`${won(result.mealExcess)}원`} />
+          <MetricCard icon="cup" label="음료 한도 초과" value={`${won(result.drinkExcess)}원`} />
+          <MetricCard icon="parking" label="쓰면 안 되는 주차비" value={`${won(result.parkingBanned)}원`} />
         </div>
 
         {result.needsReview.length > 0 && (
@@ -314,17 +314,6 @@ function ResultCard({ fileName, result }: { fileName: string; result: AuditResul
 
           <span className="small-muted">인원 수는 사용 목적에 적힌 이름을 자동으로 센 것입니다. 마우스를 올리면 읽어 낸 이름을 볼 수 있습니다.</span>
         </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function Metric({ label, value, danger = false }: { label: string; value: string; danger?: boolean }) {
-  return (
-    <Card className={danger ? "metric-card-danger" : undefined}>
-      <CardContent className="metric-card">
-        <span>{label}</span>
-        <strong title={value}>{value}</strong>
       </CardContent>
     </Card>
   );

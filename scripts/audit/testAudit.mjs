@@ -55,7 +55,7 @@ function row(rowNumber, date, amount, note, extra = {}) {
 }
 
 /** EuljiFile 을 만든다. */
-function file(rows, ownerName = '김서연') {
+function file(rows, ownerName = '김영호') {
   return {
     ownerName,
     department: '공 무 부',
@@ -70,7 +70,7 @@ function file(rows, ownerName = '김서연') {
 
 console.log('\n[1] 사양 예시 — 46,000원을 3명이 나눠 먹은 중식');
 {
-  const result = audit(file([row(10, '2026-04-15', 46000, '중식 : 김서연, 우청2')]), rules);
+  const result = audit(file([row(10, '2026-04-15', 46000, '중식 : 김영호, 우청2')]), rules);
 
   // 15,334 + 15,333 + 15,333 = 46,000 (총액이 원본과 정확히 일치해야 한다)
   check(
@@ -86,14 +86,14 @@ console.log('\n[1] 사양 예시 — 46,000원을 3명이 나눠 먹은 중식')
   check('식대 초과 합계 = 10,000원', result.mealExcess, 10000);
   check('위반 건수', result.violations.length, 1);
   check('위반 상태', result.violations[0].status, '한도초과');
-  check('참석자 3명으로 펼쳐짐', result.violations[0].participants, ['김서연', '우청#1', '우청#2']);
+  check('참석자 3명으로 펼쳐짐', result.violations[0].participants, ['김영호', '우청#1', '우청#2']);
   check('차감 대상 총액', result.totalDeduction, 10000);
 }
 
 console.log('\n[2] 한도 이내면 위반이 아니다');
 {
   // 3명이 30,000원 → 1인 10,000원 (12,000원 이내)
-  const result = audit(file([row(10, '2026-04-15', 30000, '중식 : 김서연, 우청2')]), rules);
+  const result = audit(file([row(10, '2026-04-15', 30000, '중식 : 김영호, 우청2')]), rules);
   check('위반 없음', result.violations.length, 0);
   check('초과액 0원', result.mealExcess, 0);
   check('집계는 남는다 (3명)', result.byPerson.length, 3);
@@ -103,8 +103,8 @@ console.log('\n[3] 음료 — 같은 날 같은 사람이 여러 행에 나뉘�
 {
   const result = audit(
     file([
-      row(10, '2026-04-15', 2000, '음료-김서연'),
-      row(11, '2026-04-15', 2000, '음료-김서연'),
+      row(10, '2026-04-15', 2000, '음료-김영호'),
+      row(11, '2026-04-15', 2000, '음료-김영호'),
     ]),
     rules,
   );
@@ -118,8 +118,8 @@ console.log('\n[4] 음료 — 날짜가 다르면 합산하지 않는다');
 {
   const result = audit(
     file([
-      row(10, '2026-04-15', 2000, '음료-김서연'),
-      row(11, '2026-04-16', 2000, '음료-김서연'),
+      row(10, '2026-04-15', 2000, '음료-김영호'),
+      row(11, '2026-04-16', 2000, '음료-김영호'),
     ]),
     rules,
   );
@@ -130,8 +130,8 @@ console.log('\n[5] 식대 — 끼니가 다르면 합산하지 않는다');
 {
   const result = audit(
     file([
-      row(10, '2026-04-15', 10000, '중식-김서연'),
-      row(11, '2026-04-15', 10000, '석식-김서연'),
+      row(10, '2026-04-15', 10000, '중식-김영호'),
+      row(11, '2026-04-15', 10000, '석식-김영호'),
     ]),
     rules,
   );
@@ -163,7 +163,7 @@ console.log('\n[6] 주차 — 금지 사용처 + 금지 문구는 금액 무관 
 console.log('\n[7] 주차 — 그 외 주차 결제는 참고 목록으로만 분리');
 {
   const result = audit(
-    file([row(10, '2026-04-15', 4000, '주차비 : 정하윤(자차)', { merchant: '공영주차장' })]),
+    file([row(10, '2026-04-15', 4000, '주차비 : 이영희(자차)', { merchant: '공영주차장' })]),
     rules,
   );
 
@@ -217,10 +217,10 @@ console.log('\n[11] 요약 수치');
 {
   const result = audit(
     file([
-      row(10, '2026-04-15', 46000, '중식 : 김서연, 우청2'), // 식대 10,000 초과
-      row(11, '2026-04-15', 5000, '음료-김서연'), // 음료 2,000 초과
+      row(10, '2026-04-15', 46000, '중식 : 김영호, 우청2'), // 식대 10,000 초과
+      row(11, '2026-04-15', 5000, '음료-김영호'), // 음료 2,000 초과
       row(12, '2026-04-16', 30000, '주차권구매', { merchant: '누리파크' }), // 전액
-      row(13, '2026-04-16', 4000, '주차비 : 정하윤(자차)'), // 참고
+      row(13, '2026-04-16', 4000, '주차비 : 이영희(자차)'), // 참고
       row(14, '2026-04-16', 12000, '중식 4명'), // 확인필요
     ]),
     rules,
@@ -240,10 +240,10 @@ console.log('\n[12] rows — 모든 행이 판정 결과에 담긴다 (정상·�
 {
   const result = audit(
     file([
-      row(10, '2026-04-15', 46000, '중식 : 김서연, 우청2'), // 한도초과
-      row(11, '2026-04-17', 9000, '중식-김서연'), // 정상 (날짜가 달라 합산되지 않는다)
+      row(10, '2026-04-15', 46000, '중식 : 김영호, 우청2'), // 한도초과
+      row(11, '2026-04-17', 9000, '중식-김영호'), // 정상 (날짜가 달라 합산되지 않는다)
       row(12, '2026-04-16', 30000, '주차권구매', { merchant: '누리파크' }), // 금지항목
-      row(13, '2026-04-16', 4000, '주차비 : 정하윤(자차)'), // 주차 참고
+      row(13, '2026-04-16', 4000, '주차비 : 이영희(자차)'), // 주차 참고
       row(14, '2026-04-16', 12000, '중식 4명'), // 확인필요
       row(15, '2026-04-16', 60000, '주유비-1742'), // 판정 대상 아님
     ]),
@@ -275,13 +275,13 @@ console.log('\n[13] 참석자를 손으로 고치면 즉시 다시 판정된다'
 
   // 화면에서 참석자 3명을 직접 입력한 상황
   const after = audit(file(rows), rules, {
-    participantOverrides: { 10: ['김서연', '우청#1', '우청#2'] },
+    participantOverrides: { 10: ['김영호', '우청#1', '우청#2'] },
   });
 
   check('고친 뒤에는 확인필요 없음', after.needsReview.length, 0);
   check('고친 뒤 초과액', after.mealExcess, 10000);
   check('인당 분배액', after.rows[0].perPersonAmount, Math.floor(46000 / 3));
-  check('참석자가 반영됨', after.rows[0].participants, ['김서연', '우청#1', '우청#2']);
+  check('참석자가 반영됨', after.rows[0].participants, ['김영호', '우청#1', '우청#2']);
 
   // 인원을 늘리면 1인당 금액이 줄어 한도 이내로 들어간다
   const four = audit(file(rows), rules, {
@@ -293,7 +293,7 @@ console.log('\n[13] 참석자를 손으로 고치면 즉시 다시 판정된다'
 console.log('\n[14] 참석자를 다 지우면 다시 확인필요가 된다');
 {
   // 원래는 정상 판정되는 행
-  const rows = [row(10, '2026-04-15', 9000, '중식-김서연')];
+  const rows = [row(10, '2026-04-15', 9000, '중식-김영호')];
   check('수정 전에는 정상', audit(file(rows), rules).rows[0].status, '정상');
 
   // 화면에서 참석자를 모두 지운 상황 → 인원을 모르므로 넘겨짚지 않는다
