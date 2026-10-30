@@ -191,7 +191,7 @@ export default function AdvanceDemo() {
         : "파일만 업로드하면 사용한 카드를 자동으로 찾아요.";
 
   return (
-    <Workflow title="경비 정산서 자동 작성" description="카드사에서 받은 사용내역 엑셀 파일을 올리면, 취소된 결제는 제외하고 날짜⁠·⁠사용처⁠·⁠금액으로 정산서를 작성해요.">
+    <Workflow title="경비 정산서 자동 작성" description="카드사에서 받은 사용내역 엑셀 파일을 업로드하면, 취소된 결제는 제외하고 날짜⁠·⁠사용처⁠·⁠금액으로 정산서를 작성해요.">
 
       {step === 0 ? (
         <section className="step-panel setup-grid">

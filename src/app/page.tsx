@@ -5,8 +5,8 @@ import { CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { clauses } from "@/components/ui/clauses";
 
 const cards = [
-  { href: "/demo/advance/", title: "경비 정산서 자동 작성", desc: "카드사에서 받은 엑셀 파일을 올리면, 취소된 결제는 제외하고, 날짜·사용처·금액이 담긴 경비 정산서 엑셀 파일을 만들어요.", before: "카드 내역을 수기로 옮겨 적었어요", after: "엑셀만 올리면 정산서가 완성돼요", emoji: "📝" },
-  { href: "/demo/audit/", title: "경비 규정 준수 확인", desc: "완성된 경비 정산서를 올리면 식비·음료가 한도를 지켰는지, 결제가 금지된 주차비는 없는지 확인하고, 규정에 어긋난 내역을 구분해 표시해요.", before: "엑셀을 육안으로 대조했어요", after: "규정에 어긋난 내역만 바로 구분해요", emoji: "🔍" },
+  { href: "/demo/advance/", title: "경비 정산서 자동 작성", desc: "카드사에서 받은 엑셀 파일을 업로드하면, 취소된 결제는 제외하고, 날짜·사용처·금액이 담긴 경비 정산서 엑셀 파일을 만들어요.", before: "카드 내역을 수기로 옮겨 적었어요", after: "엑셀만 업로드하면 정산서가 완성돼요", emoji: "📝" },
+  { href: "/demo/audit/", title: "경비 규정 준수 확인", desc: "완성된 경비 정산서를 업로드하면 식비·음료가 한도를 지켰는지, 결제가 금지된 주차비는 없는지 확인하고, 규정에 어긋난 내역을 구분해 표시해요.", before: "엑셀을 육안으로 대조했어요", after: "규정에 어긋난 내역만 바로 구분해요", emoji: "🔍" },
 ];
 
 export default function Home() {

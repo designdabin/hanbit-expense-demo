@@ -39,7 +39,7 @@ const DEFAULT_LIMITS: EditableLimits = limitsOf(BASE_RULES);
 const PARKING_HELP = `회사가 지정한 금지 주차장(예: ${BASE_RULES.parking.bannedMerchants.join("·")})에서 주차권을 구매한 결제예요. 한도와 관계없이 결제 금액 전체를 본인이 부담해요.`;
 
 const HEAD_HELP: Record<string, ReactNode> = {
-  "번호": "올린 정산서(엑셀)에서 해당 내역이 있는 행 번호예요.",
+  "번호": "업로드한 정산서(엑셀)에서 해당 내역이 있는 행 번호예요.",
   "인원": "'-'나 ':' 뒤의 이름을 쉼표로 나눠 세어요. '중식 4명'처럼 기호 없이 적으면 읽지 못해 '인원 확인 필요'로 표시해요.",
   "1인당 금액": "사용 금액 ÷ 인원",
   "초과 금액": <>(1인당 금액 − 1인 한도) × 인원<br />결제 금지 항목은 사용 금액 전체예요.</>,
@@ -144,7 +144,7 @@ export default function AuditDemoPage() {
   const onResult = phase === "result" && !!entry && !!result;
 
   return (
-    <Workflow title="경비 규정 준수 확인" description="완성된 경비 정산서(엑셀)를 올리면 식비⁠·⁠음료가 한도를 지켰는지, 결제가 금지된 주차비는 없는지 한 번에 확인해요. 규정에 어긋난 내역은 한눈에 알아볼 수 있게 표시해요.">
+    <Workflow title="경비 규정 준수 확인" description="완성된 경비 정산서(엑셀)를 업로드하면 식비⁠·⁠음료가 한도를 지켰는지, 결제가 금지된 주차비는 없는지 한 번에 확인해요. 규정에 어긋난 내역은 한눈에 알아볼 수 있게 표시해요.">
 
       {phase === "upload" && (
         <section className="step-panel setup-grid">
