@@ -1,0 +1,17 @@
+{
+  "meal": {
+    "keywords": ["조식", "중식", "석식"],
+    "perPersonPerMeal": 12000,
+    "groupBy": ["date", "mealKind", "person"]
+  },
+  "drink": {
+    "keywords": ["음료"],
+    "perPersonPerDay": 3000,
+    "groupBy": ["date", "person"]
+  },
+  "parking": {
+    "bannedMerchants": ["누리파크"],
+    "bannedNoteKeywords": ["주차권구매"],
+    "mode": "fullAmount"
+  }
+}
