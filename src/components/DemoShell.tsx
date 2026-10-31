@@ -77,7 +77,7 @@ export function SampleDropZone({ samples, onFile, onClear, accept = "xlsx · xls
           <div className="file-empty-state">
             <span className="file-upload-icon" aria-hidden="true"><Emoji>📤</Emoji></span>
             <span className="file-empty-copy">
-              {loading ? "샘플 파일을 업로드하고 있어요…" : failed ? "샘플을 불러오지 못했어요. 한 번 더 눌러 주세요" : <>이 영역을 <b>누르면</b> 샘플 파일이 업로드돼요</>}
+              {loading ? "샘플 파일을 업로드하고 있어요…" : failed ? "샘플을 불러오지 못했어요. 한 번 더 눌러 주세요." : <>이 영역을 <b>누르면</b> 샘플 파일이 업로드돼요.</>}
             </span>
             {!loading && !failed ? (
               <span className="file-empty-hint">{clauses("실제 서비스에서는 내 파일을 직접 선택해 업로드해요.")}</span>
